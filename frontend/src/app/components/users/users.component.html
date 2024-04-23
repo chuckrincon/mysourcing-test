@@ -1,0 +1,141 @@
+<div class="row">
+  <div class="col-3">
+    <ul class="list-group">
+      <li class="list-group-item list-group-item-secondary d-flex justify-content-between">
+        <strong>
+          Transacción:
+        </strong>
+        <span>
+          {{ lastTransaction?.id || '———' }}
+        </span>
+      </li>
+      <li class="list-group-item list-group-item-secondary d-flex justify-content-between">
+        <strong>
+          Fecha:
+        </strong>
+        <span>
+          {{ lastTransaction?.updated_at || '———' }}
+        </span>
+      </li>
+      <li class="list-group-item p-0">
+        <button type="button" class="btn btn-link text-decoration-none w-100" data-bs-toggle="modal"
+          data-bs-target="#modal" (click)="getHistoricalTransactions()">
+          Mostrar Registros Historicos
+        </button>
+      </li>
+    </ul>
+  </div>
+  <div class="col-6">
+    <table class="table table-hover">
+      <caption *ngIf="transactions.length">
+        <button type="button" class="btn btn-dark" (click)="saveTransactions()">
+          Guardar
+        </button>
+      </caption>
+      <thead class="table-light">
+        <tr>
+          <th scope="col" class="d-none">ID</th>
+          <th scope="col">Usuario</th>
+          <th scope="col">Total</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="!transactions.length">
+          <td colspan="4" class="opacity-50 text-bg-light text-center">
+            Sin Registros Disponibles
+          </td>
+        </tr>
+        <tr *ngFor="let transaction of transactions">
+          <td class="d-none">{{ transaction.id }}</td>
+          <td>{{ transaction.name }}</td>
+          <td class="font-monospace text-secondary">{{ transaction.total }}</td>
+          <td class="text-end">
+            <button type="button" class="btn btn-link link-danger text-decoration-none p-0 m-0"
+              (click)="deleteTransaction(transaction.name)">
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="col-3">
+    <ul class="list-group">
+      <li class="list-group-item">
+        <form class="d-flex flex-column gap-2 p-3" #templateForm="ngForm" (ngSubmit)="onSubmit(templateForm)"
+          autocomplete="off">
+          <div>
+            <select class="form-select" role="button" [(ngModel)]="user.id" name="id" #id="ngModel" required>
+              <option value="null" disabled>Seleccionar usuario</option>
+              <option *ngFor="let user of users" value="{{user.id}}">{{user.name}}</option>
+            </select>
+          </div>
+          <div>
+            <input type="number" class="form-control" placeholder="e.g. 500" [(ngModel)]="user.total" name="total"
+              #total="ngModel" min="1" required>
+          </div>
+          <button class="btn btn-success">
+            Agregar
+          </button>
+        </form>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5 w-100 text-center">
+          Registro Historico
+        </h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-0">
+        <div *ngIf="!historicalTransactions.length" class="p-3 text-center text-secondary">
+          Sin Registros Historicos
+        </div>
+        <div class="accordion accordion-flush" id="entriesCollpase" *ngIf="historicalTransactions.length">
+          <div class="accordion-item" *ngFor="let historicalTransaction of historicalTransactions">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                [attr.data-bs-target]="'#flush-collapse-'+historicalTransaction.id" aria-expanded="false"
+                aria-controls="flush-collapseOne">
+                <span class="d-flex flex-column">
+                  Transacción #{{ historicalTransaction.id }}
+                  <small class="text-secondary">
+                    {{ historicalTransaction.created_at }}
+                  </small>
+                </span>
+              </button>
+            </h2>
+            <div [attr.id]="'flush-collapse-'+historicalTransaction.id" class="accordion-collapse collapse"
+              data-bs-parent="#entriesCollpase">
+              <div class="accordion-body p-0">
+                <ul class="list-group rounded-0 border-0">
+                  <li class="list-group-item d-flex justify-content-between bg-body-tertiary"
+                    *ngFor="let entry of historicalTransaction.entries">
+                    <strong>
+                      {{ entry.user.name }}
+                    </strong>
+                    <span>
+                      {{ entry.total }}
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
